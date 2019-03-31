@@ -42,32 +42,40 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>1.0.2</version>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.28.0</version>
 				<configuration>
-					<extraDirectory>${project.build.directory}/</extraDirectory>
-					<from>
-						<image>openjdk:alpine</image>
-					</from>
-					<to>
-						<image>my-jib1</image>
-					</to>
-					<container>
-						<entrypoint>INHERIT</entrypoint>
-						<args>
-							<arg>java</arg>
-							<arg>-jar</arg>
-							<arg>demo.jar</arg>
-						</args>
-						<mainClass>com.example.demo.DemoApplication</mainClass>
-					</container>
+					<images>
+						<image>
+							<alias>server</alias>
+							<name>my-img1</name>
+
+							<build>
+								<from>openjdk:alpine</from>
+								<assembly>
+                                	<descriptorRef>artifact</descriptorRef>
+                                </assembly>
+								<dockerFileDir>${docker.build.directory}</dockerFileDir>
+								<cmd>
+									<shell>java -jar maven/demo-0.0.1-SNAPSHOT.jar</shell>
+								</cmd>
+							</build>
+
+							<run>
+								<ports>
+									<port>8080:8080</port>
+								</ports>
+							</run>
+						</image>
+					</images>
 				</configuration>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<id>start</id>
+						<phase>pre-integration-test</phase>
 						<goals>
-							<goal>dockerBuild</goal>
+							<goal>start</goal>
 						</goals>
 					</execution>
 				</executions>
